@@ -26,10 +26,6 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         duration = (datetime.now() - start_time).total_seconds()
         date_t = start_time.strftime("%d/%m/%Y %H:%M")
         response_headers = dict(response.headers)
-        # body = b""
-        # async for chunk in response.body_iterator:
-        #     body += chunk
-        # response_body = body.decode("utf-8")
         response_body_chunks = [chunk async for chunk in response.body_iterator]
         response_body_str = b"".join(response_body_chunks).decode("utf-8")
         response_body_json = json.loads(response_body_str)
