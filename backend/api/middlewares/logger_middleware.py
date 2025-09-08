@@ -1,8 +1,10 @@
 from collections.abc import Callable
+from datetime import datetime
 from typing import Any
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-
+from loguru import logger
+from backend.utils.time import to_unix_time
 
 class LoggerMiddleware(BaseHTTPMiddleware):
     async def dispatch(
@@ -18,5 +20,13 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         :return: Response from endpoint
         """
         # TODO:(Member) Finish implementing this method
+        start_time = datetime.now()
+
         response = await call_next(request)
+        end_time = datetime.now()
+        duration = to_unix_time(end_time) - to_unix_time(start_time)
+
+        logger.info(
+            f"Request: {request} - Request Time: {start_time} - Duration: {duration:.2f}s"
+        )
         return response
