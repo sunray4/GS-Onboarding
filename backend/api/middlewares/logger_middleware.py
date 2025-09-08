@@ -29,7 +29,7 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         response_headers = dict(response.headers)
         response_body_chunks = [chunk async for chunk in response.body_iterator]
         response_body_str = b"".join(response_body_chunks).decode("utf-8")
-        content_type = response.headers.get("content-type", "")
+        content_type = response_headers.get("content-type", "")
         response_body_json = response_body_str
         if "application/json" in content_type and response_body_str.strip():
             try:
