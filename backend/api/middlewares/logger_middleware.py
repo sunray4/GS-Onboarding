@@ -5,7 +5,8 @@ from typing import Any
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.concurrency import iterate_in_threadpool
-from loguru import logger
+
+from backend.utils.logging import logger
 
 class LoggerMiddleware(BaseHTTPMiddleware):
     async def dispatch(
@@ -28,7 +29,14 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         response_headers = dict(response.headers)
         response_body_chunks = [chunk async for chunk in response.body_iterator]
         response_body_str = b"".join(response_body_chunks).decode("utf-8")
-        response_body_json = json.loads(response_body_str)
+        content_type = response.headers.get("content-type", "")
+        response_body_json = response_body_str
+        if "application/json" in content_type and response_body_str.strip():
+            try:
+                response_body_json = json.loads(response_body_str)
+            except json.JSONDecodeError:
+                response_body_json = response_body_str
+        
         response.body_iterator = iterate_in_threadpool(iter(response_body_chunks))
         logger.info(
             f"Request: {request.method} {request.url}; Response Code: {response.status_code}; Response Headers: {response_headers}; Response Body: {response_body_json}; DateTime of Request: {request_datetime}; Execution Duration: {duration:.6f}s"
