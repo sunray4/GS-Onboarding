@@ -20,13 +20,9 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         :return: Response from endpoint
         """
         # TODO:(Member) Finish implementing this method
-        start_time = datetime.now()
-
         response = await call_next(request)
-        end_time = datetime.now()
-        duration = to_unix_time(end_time) - to_unix_time(start_time)
-
+        
         logger.info(
-            f"Request: {request} - Request Time: {start_time} - Duration: {duration:.2f}s"
+            f"Request: {request.method} {request.url} Response: {response.status_code}"
         )
         return response
