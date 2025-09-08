@@ -24,13 +24,13 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         start_time = datetime.now()
         response = await call_next(request)
         duration = (datetime.now() - start_time).total_seconds()
-        date_t = start_time.strftime("%d/%m/%Y %H:%M")
+        request_datetime = start_time.strftime("%d/%m/%Y %H:%M")
         response_headers = dict(response.headers)
         response_body_chunks = [chunk async for chunk in response.body_iterator]
         response_body_str = b"".join(response_body_chunks).decode("utf-8")
         response_body_json = json.loads(response_body_str)
         response.body_iterator = iterate_in_threadpool(iter(response_body_chunks))
         logger.info(
-            f"Request: {request.method} {request.url}; Response Code: {response.status_code}; Response Headers: {response_headers}; Response Body: {response_body_json}; DateTime called: {date_t}; Execution Duration: {duration:.6f}s"
+            f"Request: {request.method} {request.url}; Response Code: {response.status_code}; Response Headers: {response_headers}; Response Body: {response_body_json}; DateTime of Request: {request_datetime}; Execution Duration: {duration:.6f}s"
         )
         return response
